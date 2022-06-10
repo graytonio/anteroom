@@ -7,7 +7,7 @@ func init() {
 }
 
 var createCmd = &cobra.Command{
-	Use:   "create",
+	Use:   "create [project] (args)",
 	Short: "create a new project",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
