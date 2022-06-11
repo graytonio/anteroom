@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"io/ioutil"
-	"log"
+	"fmt"
 	"os"
 	"path"
 
+	"github.com/graytonio/chamber/lib"
 	"github.com/spf13/cobra"
 	"gopkg.in/ini.v1"
 )
@@ -26,9 +26,6 @@ type Config struct {
 }
 
 var config Config
-var debug_logger *log.Logger
-var error_logger *log.Logger
-var status_logger *log.Logger
 
 func Execute() error {
 	return rootCmd.Execute()
@@ -36,9 +33,6 @@ func Execute() error {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	error_logger = log.New(os.Stderr, "", 0)
-	debug_logger = log.New(ioutil.Discard, "", log.LstdFlags)
-	status_logger = log.New(os.Stdout, "", 0)
 
 	home, _ := os.UserHomeDir()
 
@@ -49,13 +43,14 @@ func init() {
 func initConfig() {
 	// Enable Verbose
 	if config.Verbose {
-		debug_logger.SetOutput(os.Stdout)
+		lib.EnableDebugLogger()
 	}
 
 	// Load Config File
 	cfg, err := ini.Load(config.ConfigFilePath)
 	if err != nil {
-		error_logger.Fatalf("Could not load config file %s\n%s", config.ConfigFilePath, err.Error())
+		lib.LogError(fmt.Sprintf("Could not load config file %s\n%s", config.ConfigFilePath, err.Error()))
+		os.Exit(1)
 	}
 
 	// Save config to config global
